@@ -1,5 +1,6 @@
 import { WalletCard } from "../components/WalletCard";
 import { TestInstructions } from "../components/TestInstructions";
+import { WalletProvider } from "@/contexts/WalletContext";
 
 const Index = () => {
   return (
@@ -24,7 +25,9 @@ const Index = () => {
           
           {/* Wallet Connection */}
           <div className="space-y-6">
-            <WalletCard />
+            <WalletProvider>
+              <WalletCard />
+            </WalletProvider>
             
             {/* Additional Info */}
             <div className="text-center text-sm text-muted-foreground">
