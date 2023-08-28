@@ -88,11 +88,20 @@ export const useWallet = () => {
     });
   }, []);
 
+  const switchNetwork = useCallback(async (targetChainId: string) => {
+    await ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: targetChainId }],
+    });
+    await loadWalletData();
+  }, []);
+
   return {
     ...walletState,
     isMetamaskInstalled,
     connect,
     disconnect,
+    switchNetwork
     
   };
 };
