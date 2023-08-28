@@ -18,3 +18,9 @@ export type WalletAction =
   | { type: 'CONNECT_ERROR'; error: string }
   | { type: 'DISCONNECT' }
   | { type: 'UPDATE_BALANCE'; balance: string };
+
+export interface WalletMetadata {
+    account: string;
+    chainId: string;
+    balance: string;
+}

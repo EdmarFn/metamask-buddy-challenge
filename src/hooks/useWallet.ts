@@ -1,19 +1,38 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { WalletState } from '@/types/wallet';
 import { EthereumProvider } from '@/types/ethereum';
+import { getWalletMetadata, isMetamaskAvailable } from '@/lib/utils';
+
+// Storage keys for persistence
+const STORAGE_KEYS = {
+  WALLET_CONNECTED: 'wallet_connected',
+} as const;
+
+const INITIAL_WALLET_STATE: WalletState = {
+  address: null,
+  isConnected: false,
+  isConnecting: false,
+  error: null,
+  chainId: null,
+  balance: null,
+};
 
 export const useWallet = () => {
-  const [walletState, setWalletState] = useState<WalletState>({
-    address: null,
-    isConnected: false,
-    isConnecting: false,
-    error: null,
-    chainId: null,
-    balance: null,
-  });
+  const [walletState, setWalletState] = useState<WalletState>(INITIAL_WALLET_STATE);
 
   const isMetamaskInstalled = isMetamaskAvailable(window);
+  const ethereum: EthereumProvider = window.ethereum as EthereumProvider;
+
   const connect = useCallback(async () => {
+    await loadWalletData();
+  }, []);
+
+  const disconnect = useCallback(() => {
+    clearStoredWalletData();
+    setWalletState(INITIAL_WALLET_STATE);
+  }, []);
+
+  async function loadWalletData() {
     if(walletState.isConnecting) {
       const errorMessage = 'Connection request already pending';
       setWalletState(prev => ({ ...prev, error: errorMessage }));
@@ -24,7 +43,14 @@ export const useWallet = () => {
     setWalletState(prev => ({ ...prev, isConnecting: true, error: null }));
 
     try {
-      const { account, chainId, balance } = await getMetadataOfWallet(window.ethereum as EthereumProvider, isMetamaskInstalled);
+      if(!isMetamaskInstalled) {
+        throw new Error('MetaMask is not installed');
+      }
+
+      const { account, chainId, balance } = await getWalletMetadata(ethereum);
+
+      localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');  
+
       setWalletState({
         address: account,
         chainId,
@@ -37,17 +63,28 @@ export const useWallet = () => {
       console.error('Wallet error when getting metadata of wallet:', error);
       setWalletState(prev => ({ ...prev, isConnecting: false, error: error?.message }));
     }	
-  }, []);
+  }
 
-
-  const disconnect = useCallback(() => {
-    setWalletState({
-      address: null,
-      isConnected: false,
-      isConnecting: false,
-      error: null,
-      chainId: null,
-      balance: null,
+  useEffect(() => {
+    const storedWalletData = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
+    if(storedWalletData) {
+      loadWalletData();
+    }
+    ethereum.on('accountsChanged', (accounts: string[]) => {
+      if(accounts.length > 0) {
+        setWalletState(prev => ({ ...prev, address: accounts[0] }));
+      } else {
+        console.error('No account found');
+        disconnect();
+      }
+    });
+    ethereum.on('chainChanged', (chainId: string) => {
+      if(chainId) {
+        setWalletState(prev => ({ ...prev, chainId }));
+      } else {
+        console.error('No chain found');
+        disconnect();
+      }
     });
   }, []);
 
@@ -56,40 +93,12 @@ export const useWallet = () => {
     isMetamaskInstalled,
     connect,
     disconnect,
+    
   };
 };
 
-function isMetamaskAvailable(window: Window): boolean {
-  return window && window.ethereum && window.ethereum.isMetaMask;
-}
+function clearStoredWalletData() {
+  localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
+};
 
-async function getMetadataOfWallet(ethereum: EthereumProvider, isMetamaskInstalled = isMetamaskAvailable(window)) {
-  if(!isMetamaskInstalled) {
-    throw new Error('MetaMask is not installed');
-  }
 
-  const accounts = await ethereum.request({
-    method: 'eth_requestAccounts'
-  }) as string[];
-
-  const account = accounts[0];
-
-  if (!accounts || accounts.length === 0) {
-    throw new Error('No accounts found');
-  }
-
-  const chainId = await ethereum.request({
-    method: 'eth_chainId'
-  }) as string;
-
-  const balance = await ethereum.request({
-    method: 'eth_getBalance',
-    params: [account, 'latest']
-  }) as string;
-
-  return {
-    account,
-    chainId,
-    balance,
-  };
-}
