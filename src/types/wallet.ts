@@ -5,6 +5,22 @@ export interface WalletState {
   error: string | null;
   chainId: string | null;
   balance: string | null;
+  transactions: Transaction[];
+  isLoadingTransactions: boolean;
+}
+
+export interface Transaction {
+  hash: string;
+  from: string;
+  to: string;
+  value: string;
+  gas: string;
+  gasPrice: string;
+  nonce: number;
+  blockNumber: number | null;
+  timestamp: number | null;
+  status: 'pending' | 'confirmed' | 'failed';
+  type: 'incoming' | 'outgoing';
 }
 
 export interface MetamaskError {

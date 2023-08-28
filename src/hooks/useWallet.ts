@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { WalletState } from '@/types/wallet';
 import { EthereumProvider } from '@/types/ethereum';
 import { getWalletMetadata, isMetamaskAvailable } from '@/lib/utils';
+import { transactionService } from '@/services/transactionService';
 
 // Storage keys for persistence
 const STORAGE_KEYS = {
@@ -15,6 +16,8 @@ const INITIAL_WALLET_STATE: WalletState = {
   error: null,
   chainId: null,
   balance: null,
+  transactions: null,
+  isLoadingTransactions: false,
 };
 
 export const useWallet = () => {
@@ -58,6 +61,8 @@ export const useWallet = () => {
         isConnected: true,
         isConnecting: false,
         error: null,
+        transactions: null,
+        isLoadingTransactions: false,
       });
     } catch (error) {
       console.error('Wallet error when getting metadata of wallet:', error);
@@ -96,13 +101,43 @@ export const useWallet = () => {
     await loadWalletData();
   }, []);
 
+  const fetchTransactionHistory = useCallback(async () => {
+    if (!walletState.chainId) return;
+    
+    if (walletState.isLoadingTransactions) {
+      console.log('Already loading transactions, ignoring request');
+      return;
+    }
+
+    setWalletState(prev => ({ ...prev, isLoadingTransactions: true }));
+
+    try {
+      const transactions = await transactionService.fetchTransactionHistory(
+        walletState.address, 
+        window.ethereum
+      );
+      setWalletState(prev => ({ 
+        ...prev, 
+        transactions,
+        isLoadingTransactions: false 
+      }));
+    } catch (error) {
+      console.error('Error fetching transaction history:', error);
+      setWalletState(prev => ({ 
+        ...prev, 
+        isLoadingTransactions: false 
+      }));
+      throw error;
+    }
+  }, [walletState.address, walletState.chainId]);
+
   return {
     ...walletState,
     isMetamaskInstalled,
     connect,
     disconnect,
-    switchNetwork
-    
+    switchNetwork,
+    fetchTransactionHistory
   };
 };
 
