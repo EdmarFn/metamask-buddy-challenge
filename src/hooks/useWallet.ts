@@ -1,6 +1,10 @@
 import { useState, useCallback } from 'react';
 import { WalletState } from '@/types/wallet';
 
+function isMetamaskInstalled(window: Window): boolean {
+  return window && window.ethereum && window.ethereum.isMetaMask;
+}
+
 export const useWallet = () => {
   const [walletState, setWalletState] = useState<WalletState>({
     address: null,
@@ -11,8 +15,7 @@ export const useWallet = () => {
     balance: null,
   });
 
-  // TODO: Implement MetaMask detection
-  const isMetamaskInstalled = false;
+  const flagMetamaskInstalled = isMetamaskInstalled(window);
 
   // TODO: Implement wallet connection
   const connect = useCallback(async () => {
@@ -37,7 +40,7 @@ export const useWallet = () => {
 
   return {
     ...walletState,
-    isMetamaskInstalled,
+    flagMetamaskInstalled,
     connect,
     disconnect,
   };
