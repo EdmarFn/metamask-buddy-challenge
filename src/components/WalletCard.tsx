@@ -88,7 +88,7 @@ export const WalletCard = () => {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="bg-gradient-card border-border shadow-card">
+      <Card className="bg-gradient-card border-border shadow-card transition-all duration-700 ease-in-out">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-crypto">
             <Wallet className="h-6 w-6 text-primary-foreground" />
@@ -126,7 +126,7 @@ export const WalletCard = () => {
           )}
 
           {isConnected && address && (
-            <div className="space-y-3 rounded-lg bg-muted/30 p-4">
+            <div className="space-y-3 rounded-lg bg-muted/30 p-4 transition-all duration-800 ease-out transform">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">Status</span>
                 <Badge variant="default" className="bg-gradient-success text-white">
@@ -218,7 +218,7 @@ export const WalletCard = () => {
               <Button 
                 variant="outline" 
                 onClick={disconnect}
-                className="flex-1"
+                className="flex-1 transition-all duration-700 ease-in-out transform hover:scale-110 hover:bg-destructive hover:text-destructive-foreground active:scale-90 active:rotate-1"
               >
                 Disconnect
               </Button>
