@@ -9,10 +9,9 @@ interface TransactionHistoryProps {
   transactions: Transaction[];
   isLoading: boolean;
   address: string | null;
-  chainId: string | null;
 }
 
-export const TransactionHistory = ({ transactions, isLoading, address, chainId }: TransactionHistoryProps) => {
+export const ContentDialogTransactionHistory = ({ transactions, isLoading, address }: TransactionHistoryProps) => {
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
 
   const formatValue = (value: string) => {
@@ -45,7 +44,6 @@ export const TransactionHistory = ({ transactions, isLoading, address, chainId }
   return (
     <Card className="bg-gradient-card border-border shadow-card transition-all duration-700 ease-in-out">
       <CardHeader className="text-center pb-4">
-        <CardTitle className="text-xl font-bold">Transaction History</CardTitle>
         <CardDescription>
           Recent transactions for your wallet
         </CardDescription>

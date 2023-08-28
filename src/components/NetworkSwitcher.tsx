@@ -15,8 +15,6 @@ interface NetworkSwitcherProps {
   onNetworkChange?: (newChainId: string) => void | undefined
 }
 
-
-
 export const NetworkSwitcher = ({ 
   networkOptions, 
   chainId, 
@@ -25,6 +23,9 @@ export const NetworkSwitcher = ({
     const { switchNetwork, } = useWalletContext();
 
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false); // Add this line
+
   const handleNetworkChange = async (newChainId: string) => {
     if (newChainId === chainId) {
       return;
@@ -47,6 +48,14 @@ export const NetworkSwitcher = ({
       setIsSwitchingNetwork(true);
       await switchNetwork(newChainId);
       onNetworkChange(newChainId);
+      setIsOpen(false); // Close popover directly
+      
+      // Show success icon temporarily
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 1000);
+      
     } catch (error: any) {
       let errorMessage = 'Failed to switch network';
       
@@ -79,17 +88,40 @@ export const NetworkSwitcher = ({
     
   };
 
+  // Determine which icon to show
+  const getIcon = () => {
+    return (
+      <div className="relative w-3 h-3">
+        <RefreshCw 
+          className={`h-3 w-3 text-muted-foreground group-hover:text-primary transition-opacity duration-500 ease-in-out absolute inset-0 ${
+            isSwitchingNetwork ? 'opacity-100' : 
+            showSuccess ? 'opacity-0' : 'opacity-100'
+          }`} 
+        />
+        <CheckCircle 
+          className={`h-3 w-3 text-green-500 transition-opacity duration-500 ease-in-out absolute inset-0 ${
+            showSuccess ? 'opacity-100' : 'opacity-0'
+          }`} 
+        />
+      </div>
+    );
+  };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <button
           className="p-1 hover:bg-muted/50 rounded-full transition-colors duration-200 group"
           title="Switch network"
         >
-          <RefreshCw className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
+          {getIcon()}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-3" align="end">
+      <PopoverContent 
+        className="w-56 p-3" 
+        align="end"
+        sideOffset={8}
+      >
         <div className="space-y-2">
           <h4 className="font-medium text-sm">Select Network</h4>
           <div className="space-y-1">

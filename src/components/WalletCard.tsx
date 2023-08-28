@@ -1,14 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "../hooks/use-toast";
-import { TransactionHistory } from "./TransactionHistory";
 import { NetworkSwitcher } from "./NetworkSwitcher";
 import { Wallet, ExternalLink, AlertCircle, CheckCircle, Loader2, History, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import { useWalletContext } from "@/contexts/WalletContext";
+import { ButtonViewTransactionHistory } from "./TransactionHistory/ButtonViewTransactionHistory";
 
 export const WalletCard = () => {
   const { toast } = useToast();
@@ -49,8 +48,6 @@ export const WalletCard = () => {
     }
   }, [isConnected]);
 
-  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
-
   const formatAddress = (addr: string): string => {
     if (addr.length < 10) return addr;
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -67,21 +64,6 @@ export const WalletCard = () => {
   const getChainName = (id: string): string => {
     const network = networkOptions.find(network => network.id === id);
     return network?.name || `Chain ${id}`;
-  };
-
-  const handleTransactionHistoryClick = async () => {     
-    try {
-      await fetchTransactionHistory();
-      setShowTransactionHistory(true);
-    } catch (error: any) {
-      setShowTransactionHistory(false);
-      console.error('Error fetching transaction history:', error);
-      toast({
-        title: "Loading Transaction History Failed",
-        description: error.message || "Failed to fetch transaction history",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -168,26 +150,13 @@ export const WalletCard = () => {
                   </div>
                 )}
                 
-                <div className="pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="w-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 border-blue-200/50 hover:border-blue-300/70 transition-all duration-300"
-                    onClick={handleTransactionHistoryClick}
-                  >
-                    {isLoadingTransactions ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Loading transactions...
-                      </>
-                    ) : (
-                      <>
-                        <History className="mr-2 h-4 w-4 text-blue-600" />
-                        View Transaction History
-                      </>
-                    )}
-                  </Button>
-                </div>
+                {/* Replace the button with the enhanced component */}
+                <ButtonViewTransactionHistory
+                  transactions={transactions}
+                  isLoading={isLoadingTransactions}
+                  address={address}
+                  onFetchTransactions={fetchTransactionHistory}
+                />
               </div>
             )}
           </div>
@@ -224,32 +193,6 @@ export const WalletCard = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Transaction History Dialog */}
-      <Dialog open={showTransactionHistory} onOpenChange={setShowTransactionHistory}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
-          <DialogHeader className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold">Transaction History</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowTransactionHistory(false)}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogHeader>
-          
-          <div className="overflow-y-auto max-h-[calc(80vh-120px)]">
-            <TransactionHistory
-              transactions={transactions}
-              isLoading={isLoadingTransactions}
-              address={address}
-              chainId={chainId}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
