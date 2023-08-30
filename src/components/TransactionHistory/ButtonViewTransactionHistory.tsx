@@ -3,29 +3,38 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, History, X } from "lucide-react";
 import { ContentDialogTransactionHistory } from "./ContentDialogTransactionHistory";
 import { useState } from "react";
+import { useWalletContext } from "@/contexts/WalletContext";
+import { toast } from "@/hooks/use-toast";
 
 interface ButtonViewTransactionHistoryProps {
-  transactions: any[] | null;
-  isLoading: boolean;
-  address: string | null;
-  onFetchTransactions: () => Promise<void>;
+  onFetchTransactions?: () => void ;
 }
 
+
+
 export const ButtonViewTransactionHistory = ({ 
-  transactions, 
-  isLoading, 
-  address, 
-  onFetchTransactions 
+  onFetchTransactions
 }: ButtonViewTransactionHistoryProps) => {
+  const {fetchTransactionHistory, transactions, isLoadingTransactions, address} = useWalletContext();
   const [showTransactionHistory, setShowTransactionHistory] = useState(false);
 
   const handleTransactionHistoryClick = async () => {     
     try {
-      await onFetchTransactions();
+      await fetchTransactionHistory();
+      await onFetchTransactions && onFetchTransactions();
       setShowTransactionHistory(true);
     } catch (error: any) {
       setShowTransactionHistory(false);
       console.error('Error fetching transaction history:', error);
+      const toastVisible = toast({
+        title: "Transaction History Error",
+        description: error?.message,
+        variant: "destructive",
+      });
+      
+      setTimeout(() => {
+        toastVisible.dismiss();
+      }, 3000)
     }
   };
 
@@ -38,7 +47,7 @@ export const ButtonViewTransactionHistory = ({
           className="w-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 border-blue-200/50 hover:border-blue-300/70 transition-all duration-300"
           onClick={handleTransactionHistoryClick}
         >
-          {isLoading ? (
+          {isLoadingTransactions ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Loading transactions...
@@ -60,7 +69,7 @@ export const ButtonViewTransactionHistory = ({
           <div className="overflow-y-auto max-h-[calc(80vh-120px)]">
             <ContentDialogTransactionHistory
               transactions={transactions}
-              isLoading={isLoading}
+              isLoading={isLoadingTransactions}
               address={address}
             />
           </div>

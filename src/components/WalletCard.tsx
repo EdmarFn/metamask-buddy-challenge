@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useToast } from "../hooks/use-toast";
 import { NetworkSwitcher } from "./NetworkSwitcher";
 import { Wallet, ExternalLink, AlertCircle, CheckCircle, Loader2, History, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,7 +9,6 @@ import { useWalletContext } from "@/contexts/WalletContext";
 import { ButtonViewTransactionHistory } from "./TransactionHistory/ButtonViewTransactionHistory";
 
 export const WalletCard = () => {
-  const { toast } = useToast();
 
   const { 
     address, 
@@ -21,10 +19,7 @@ export const WalletCard = () => {
     balance,
     connect, 
     disconnect,
-    isLoadingTransactions, 
     isMetamaskInstalled,
-    fetchTransactionHistory,
-    transactions
   } = useWalletContext();
 
   const [showWalletData, setShowWalletData] = useState(false);
@@ -151,17 +146,11 @@ export const WalletCard = () => {
                 )}
                 
                 {/* Replace the button with the enhanced component */}
-                <ButtonViewTransactionHistory
-                  transactions={transactions}
-                  isLoading={isLoadingTransactions}
-                  address={address}
-                  onFetchTransactions={fetchTransactionHistory}
-                />
+                <ButtonViewTransactionHistory/>
               </div>
             )}
           </div>
 
-          {/* Connect/Disconnect Buttons */}
           <div className="flex gap-2">
             {!isConnected ? (
               <Button 
