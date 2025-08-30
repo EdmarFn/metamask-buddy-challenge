@@ -1,8 +1,24 @@
 # MetaMask Integration Test Project
 
-A blockchain developer skill assessment project built with React, TypeScript, and Tailwind CSS. This project provides a UI shell for implementing MetaMask wallet integration functionality.
+> **🎥 Interview Challenge Completed!** 
+> 
+> This project was completed as part of a **coding challenge** during a blockchain developer interview. I was asked to implement MetaMask wallet integration functionality.
 
-## 🎯 Project Overview
+## 📹 Demo Videos
+
+### 🚀 Application Demo
+**[Watch the working application in action](https://www.loom.com/share/f62ad6ae06f840b68bf2515a0f171404?sid=800eb3fe-c6c0-4761-bfd0-ae7825dafe82)**
+
+This video demonstrates the application after I completed the challenge, showing all implemented features working correctly.
+
+### 💻 Code Walkthrough
+**[Watch the code implementation](https://www.loom.com/share/e453870d417744dcb132a2c157306bcd?sid=066b8185-0008-416d-97cf-1944e45bb9ae)**
+
+This video shows the code structure and implementation details after I finished the job.
+
+---
+
+## �� Project Overview
 
 This is a **60-minute coding challenge** designed to test a developer's ability to implement MetaMask wallet integration. The project includes a modern, crypto-themed UI with placeholder components - **the developer needs to implement all wallet functionality**.
 
